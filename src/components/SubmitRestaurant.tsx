@@ -1,9 +1,10 @@
-/* src/components/SubmitRestaurant.jsx */
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import styled from '@emotion/styled';
 import { toast } from 'react-toastify';
+import { submissionAPI } from '../services/api';
 import { FaCheckCircle } from 'react-icons/fa';
+import type { CreateSubmissionInput, SubmissionFormValues } from '../types';
 
 const FormContainer = styled.div`
   background: white;
@@ -121,23 +122,29 @@ const SuccessMessage = styled.div`
 
 function SubmitRestaurant() {
   const [submitted, setSubmitted] = useState(false);
-  const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm();
+  const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<SubmissionFormValues>();
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: SubmissionFormValues) => {
     try {
-      // 백엔드 없이 현재 브라우저에 실습 제보 저장
-      const storageKey = 'pwd-week5-submissions';
-      const submissions = JSON.parse(localStorage.getItem(storageKey) || '[]');
-      const submission = {
-        ...data,
-        id: crypto.randomUUID(),
-        status: 'pending',
-        recommendedMenu: data.recommendedMenu
-          .split(/[\n,]/)
-          .map((item) => item.trim())
-          .filter(Boolean)
+      const recommendedMenuArray = typeof data.recommendedMenu === 'string'
+        ? data.recommendedMenu
+            .split(/[\n,]/)
+            .map((item) => item.trim())
+            .filter(Boolean)
+        : [];
+
+      const payload: CreateSubmissionInput = {
+        restaurantName: data.restaurantName?.trim(),
+        category: data.category,
+        location: data.location?.trim(),
+        priceRange: data.priceRange?.trim() || undefined,
+        recommendedMenu: recommendedMenuArray.length ? recommendedMenuArray : undefined,
+        review: data.review?.trim() || undefined,
+        submitterName: data.submitterName?.trim() || undefined,
+        submitterEmail: data.submitterEmail?.trim() || undefined,
       };
-      localStorage.setItem(storageKey, JSON.stringify([...submissions, submission]));
+
+      await submissionAPI.createSubmission(payload);
       setSubmitted(true);
       toast.success('맛집이 성공적으로 제보되었습니다! 🎉');
       reset();
@@ -238,6 +245,7 @@ function SubmitRestaurant() {
           />
         </FormGroup>
 
+        
         <FormGroup>
           <Label htmlFor="review">한줄평</Label>
           <Textarea

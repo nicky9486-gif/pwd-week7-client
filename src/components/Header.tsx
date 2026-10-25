@@ -1,5 +1,3 @@
-/* src/components/Header.jsx */
-import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { FaHome, FaList, FaFire, FaPlus } from 'react-icons/fa';
@@ -12,7 +10,9 @@ const HeaderContainer = styled.header`
 
 const Nav = styled.nav`
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
+  gap: 0.5rem;
   max-width: 600px;
   margin: 0 auto;
 `;
@@ -37,7 +37,7 @@ const NavLink = styled(Link)`
 function Header() {
   const location = useLocation();
 
-  const isActive = (path) => {
+  const isActive = (path: string) => {
     return location.pathname === path ? 'active' : '';
   };
 
@@ -54,7 +54,7 @@ function Header() {
           <FaList /> List
         </NavLink>
         <NavLink to="/popular" className={isActive('/popular')}>
-          <FaFire /> Popular Top 3
+          <FaFire /> Popular
         </NavLink>
         <NavLink to="/submit" className={isActive('/submit')}>
           <FaPlus /> Submit New restaurant
