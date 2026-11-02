@@ -86,7 +86,9 @@ function DetailPage() {
       
       <h1>{restaurant.name}</h1>
       
-      <RestaurantImage src={restaurant.image} alt={restaurant.name} />
+      {restaurant.image && (
+        <RestaurantImage src={restaurant.image} alt={restaurant.name} />
+      )}
       
       <InfoSection>
         <h3>기본 정보</h3>
